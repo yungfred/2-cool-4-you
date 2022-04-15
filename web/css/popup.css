@@ -1,0 +1,86 @@
+@font-face {
+  font-family: Billabong;
+  src: url(../fonts/billabong.ttf);
+}
+
+
+h1 {
+  font-family: Billabong;
+  font-size: 35px;
+  font-weight: bold;
+  text-align: center;
+}
+
+p {
+  width: 100%;
+  text-align: left;
+  font-family: monospace;
+  font-size: 16px;
+  margin: 2px;
+}
+
+a {
+  color: black;
+}
+
+p.error{
+  text-align: center;
+  font-size: 25px;
+}
+
+p.full_name{
+  color: #808080;
+}
+
+img#loading {
+  width: 100%;
+}
+
+img#refresh{
+  width: 25%;
+  padding-bottom: 15px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+img#refresh:hover{
+  cursor: pointer;
+}
+
+img.pp {
+  width: 45px;
+  display: block;
+}
+
+#content {
+  min-width: 280px;
+}
+
+#userlist {
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#userlist th, #userlist td {
+  padding: 10px;
+  text-align: left;
+  font-size: 15px;
+}
+
+#userlist tr:nth-child(odd) {
+  background-color: #f2f2f2;
+}
+
+
+/* hide scrollbar */
+
+html {
+    overflow: scroll;
+    overflow-x: hidden;
+}
+::-webkit-scrollbar {
+    width: 0px;  /* remove scrollbar space */
+    background: transparent;  /* optional: just make scrollbar invisible */
+}
