@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener(
     console.log("Got request: " + request);
 
     if(request.target === "bs" && request.msg === "activate_icon") {
-        chrome.pageAction.show(sender.tab.id);
+        chrome.action.show(sender.tab.id);
     }
     
     if(request.target === "bs" && request.msg === "set_userid"){
