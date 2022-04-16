@@ -52,7 +52,7 @@ function handleRes(request, sender, sendResponse) {
     p.appendChild(node);
     document.getElementById("content").appendChild(p);
   }
-  return true; // todo
+  sendResponse();
 }
 
 function refreshUsers(){
