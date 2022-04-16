@@ -73,7 +73,6 @@ function instaQuery(userid, query_hash, users, after){
       }
       var pageinfo = ptr.page_info;
 
-      // todo activate recursive part
       if(pageinfo.has_next_page){
         await instaQuery(userid, query_hash, users, pageinfo.end_cursor);
       }
