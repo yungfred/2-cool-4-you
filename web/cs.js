@@ -36,8 +36,8 @@ function getUserID(){
   return userID;
 }
 
-// automatically send userID to background script
+// send userID to background script on cs loading
 chrome.runtime.sendMessage({"target": "bs", "msg": "set_userid", "userID": getUserID()});
 
-// activiate icon on instagram.com
+// activiate icon on cs loading
 chrome.runtime.sendMessage({"target": "bs", "msg": "activate_icon"});

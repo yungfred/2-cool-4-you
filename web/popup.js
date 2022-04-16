@@ -4,11 +4,13 @@ var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-144181571-1']);
 _gaq.push(['_trackPageview']);
 
+/* does not work with manifest v3
 (function() {
   var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
   ga.src = 'https://ssl.google-analytics.com/ga.js';
   var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
+*/
 
 document.addEventListener('DOMContentLoaded',sendUserlistReq);
 chrome.runtime.onMessage.addListener(handleRes);
@@ -20,11 +22,12 @@ window.addEventListener('click', function(e) {
   }
 });
 
-
+/*
 function trackButtonClick(e) {
   console.log("refresh action registered");
-  _gaq.push(['_trackEvent', e.target.id, 'clicked']);
+  // _gaq.push(['_trackEvent', e.target.id, 'clicked']);
 }
+*/
 
 function sendUserlistReq(){
   console.log("sending request to background script");
@@ -49,6 +52,7 @@ function handleRes(request, sender, sendResponse) {
     p.appendChild(node);
     document.getElementById("content").appendChild(p);
   }
+  return true; // todo
 }
 
 function refreshUsers(){
@@ -58,12 +62,12 @@ function refreshUsers(){
   }
   removeIcon("refresh");
 
-  return new Promise(function(resolve, reject){
-    chrome.runtime.sendMessage({"target": "bs", "msg": "remove_userlist"}, resolve);
-  }).then(result => {
-    addIcon("loading", "gif");
-    sendUserlistReq();
-  });
+  chrome.runtime.sendMessage({"target": "bs", "msg": "remove_userlist"})
+    .then(() => {
+      console.log("adding loading gif");
+      addIcon("loading", "gif");
+      sendUserlistReq();
+    }, (response) => {console.log(response)});
 }
 
 function removeIcon(id){
@@ -92,7 +96,7 @@ function addIcon(id, filetype, onClickAction){
   document.getElementById("content").appendChild(img);
 
   // add google analytics listener
-  img.addEventListener('click', trackButtonClick);
+  // img.addEventListener('click', trackButtonClick);
 }
 
 

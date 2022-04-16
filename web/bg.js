@@ -1,35 +1,39 @@
 // background script
+chrome.runtime.onMessage.addListener(handleMessage);
+chrome.action.disable(); // disable icon for all tabs per default
+
 console.log("backgroundscript loaded");
 
 const FOLLOWING_HASH = '58712303d941c6855d4e888c5f0cd22f';
 const FOLLOWERS_HASH = '37479f2b8209594dde7facb0d904896a';
 
+function handleMessage(message, sender, sendResponse) {
+  console.log("Got request:");
+  console.log(message);
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    console.log("Got request: " + request);
+  if(message.target !== "bs") {
+    return;
+  }
 
-    if(request.target === "bs" && request.msg === "activate_icon") {
-        chrome.action.show(sender.tab.id);
-    }
-    
-    if(request.target === "bs" && request.msg === "set_userid"){
-      chrome.storage.local.set({"userid": request.userID}, function() {
-        console.log("Setting userID to " + request.userID);
-      });
-    }
+  if (message.msg === "activate_icon") {
+    chrome.action.enable(sender.tab.id, () => sendResponse()); // enable icon for tab with cs
+  }
+  if (message.msg === "set_userid") {
+    chrome.storage.local.set({"userid": message.userID}, function() { 
+      console.log("Setting userID to " + message.userID);
+      sendResponse();
+    });
+  }
+  if (message.msg === "get_userlist") {
+    loadUsers().then(() => sendResponse());
+  }
+  if (message.msg === "remove_userlist") {
+    removeUsers().then(() => sendResponse());
+  }
+  return true;
+}
 
-    if(request.target === "bs" && request.msg === "remove_userlist"){
-      removeUsers();
-    }
-    
-    if(request.target === "bs" && request.msg === "get_userlist"){
-      loadUsers();
-    }
-});
-
-
-function instaQuery(userid, query_hash, users, after, resolve, reject){
+function instaQuery(userid, query_hash, users, after){
 
   var params = {
     id: userid,
@@ -44,39 +48,37 @@ function instaQuery(userid, query_hash, users, after, resolve, reject){
     query_hash + '&variables=' + encodeURI(JSON.stringify(params));
   console.log(req_url);
 
-  var xhr = new XMLHttpRequest();
-  // async xhr
-  xhr.open("GET", req_url, true);
+  var fetchResponsePromise = fetch(req_url, {method: "GET"});
 
-  xhr.onload = function(){
-    var parsed = JSON.parse(this.response);
+  return fetchResponsePromise
+    .then(response => response.json())
+    .then(async response => {
+      console.log(response);
 
-    if(parsed.status === "fail"){
-      reject({code: 429, msg: "too many requests"});
-      return;
-    }
-    
-    var ptr;
-    if(query_hash === FOLLOWING_HASH){
-      ptr = parsed.data.user.edge_follow;
-      } else {
-      ptr = parsed.data.user.edge_followed_by;
-    }
+      if(response.status === "fail"){
+          return Promise.reject({code: 429, msg: "too many requests"});
+      }
+      
+      var ptr;
+      if(query_hash === FOLLOWING_HASH){
+        ptr = response.data.user.edge_follow;
+        } else {
+        ptr = response.data.user.edge_followed_by;
+      }
 
-    var user_nodes = ptr.edges;
-    for(var i=0; i<user_nodes.length; i++){
-      var user = user_nodes[i].node;
-      users.push(user);
-    }
-    var pageinfo = ptr.page_info;
+      var user_nodes = ptr.edges;
+      for(var i=0; i<user_nodes.length; i++){
+        var user = user_nodes[i].node;
+        users.push(user);
+      }
+      var pageinfo = ptr.page_info;
 
-    if(pageinfo.has_next_page){
-      instaQuery(userid, query_hash, users, pageinfo.end_cursor, resolve, reject);
-    } else {
-      resolve(users);
-    }
-  };
-  xhr.send();
+      // todo activate recursive part
+      if(pageinfo.has_next_page){
+        await instaQuery(userid, query_hash, users, pageinfo.end_cursor);
+      }
+      return users;
+  });
 }
 
 
@@ -99,8 +101,7 @@ function getUserid(){
 function getUsers(){
   return new Promise(function(resolve, reject){
     chrome.storage.local.get("users", function(result) {
-      console.log("read users list");
-      console.log(result);
+      console.log("read users list: " + result);
       resolve(result);
     });
   });
@@ -161,14 +162,17 @@ function filterUsers(following, followers){
 
 function refreshUsers(userid){
   return Promise.all([
-    new Promise(function(resolve, reject) {instaQuery(userid, FOLLOWING_HASH, [], null, resolve, reject)}),
-    new Promise(function(resolve, reject) {instaQuery(userid, FOLLOWERS_HASH, [], null, resolve, reject)}),
+    //new Promise(function(resolve, reject) {instaQuery(userid, FOLLOWING_HASH, [], null, resolve, reject)}),
+    // new Promise(function(resolve, reject) {instaQuery(userid, FOLLOWERS_HASH, [], null, resolve, reject)}),
+    instaQuery(userid, FOLLOWING_HASH, [], null),
+    instaQuery(userid, FOLLOWERS_HASH, [], null),
     removeUsers()
   ]).then(async result => {
-    console.log("xhr queried data:");
+    console.log("fetched data:");
     console.log(result);
     // store users
     filtered = filterUsers(result[0], result[1]);
+    console.log("filtered len:" + filtered.length);
     sorted = sortUsers(filtered);
     with_pp = await store_profile_pics(sorted);
     return storeUsers(with_pp);
@@ -208,7 +212,6 @@ function loadUsers(){
     if(err.code === 429){
       chrome.runtime.sendMessage({target: "ps", msg: "err", code: 429});
     }
-
   });
 }
 
