@@ -1,18 +1,24 @@
 // popup script
 
+/* Google Analytics: does not work with manifest v3
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-144181571-1']);
 _gaq.push(['_trackPageview']);
 
-/* does not work with manifest v3
 (function() {
   var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
   ga.src = 'https://ssl.google-analytics.com/ga.js';
   var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
+
+function trackButtonClick(e) {
+  console.log("refresh action registered");
+  // _gaq.push(['_trackEvent', e.target.id, 'clicked']);
+}
 */
 
-document.addEventListener('DOMContentLoaded',sendUserlistReq);
+$("#reload-btn").on("click", refreshUsers);
+document.addEventListener('DOMContentLoaded', sendUserlistReq);
 chrome.runtime.onMessage.addListener(handleRes);
 
 // links in popup.html should be opened in new tab
@@ -22,30 +28,20 @@ window.addEventListener('click', function(e) {
   }
 });
 
-/*
-function trackButtonClick(e) {
-  console.log("refresh action registered");
-  // _gaq.push(['_trackEvent', e.target.id, 'clicked']);
-}
-*/
-
 function sendUserlistReq(){
   console.log("sending request to background script");
   chrome.runtime.sendMessage({"target": "bs", "msg": "get_userlist"});
 }
 
 function handleRes(request, sender, sendResponse) {
+  toggleLoading();
   if(request.target === "ps" && request.msg === "update_userlist"){
-    console.log(request);
-    removeIcon("loading");
-    addIcon("refresh", "png", refreshUsers);
     // add user list
     users = request.list;
     addUsersToTable(users);
   }
 
   if(request.target === "ps" && request.msg === "err" && request.code === 429){
-    removeIcon("loading");
     var p = document.createElement("p");
     p.setAttribute("class", "error");
     var node = document.createTextNode("Too many requests, please retry later");
@@ -56,24 +52,29 @@ function handleRes(request, sender, sendResponse) {
 }
 
 function refreshUsers(){
-  var userlist = document.getElementById("userlist");
+  toggleLoading();
+  var userlist = $("#userlist");
   if(userlist !== null){
     userlist.remove();
   }
-  removeIcon("refresh");
 
   chrome.runtime.sendMessage({"target": "bs", "msg": "remove_userlist"})
     .then(() => {
-      console.log("adding loading gif");
-      addIcon("loading", "gif");
       sendUserlistReq();
     }, (response) => {console.log(response)});
 }
 
-function removeIcon(id){
-  var elem = document.getElementById(id);
-  if(elem !== null){ 
-    elem.remove();
+function toggleLoading() {
+  var btn = $("#reload-btn");
+  var loading = btn.prop("disabled"); 
+  console.log("setting button loading to " + !loading);
+
+  if (loading) {
+    btn.removeAttr("disabled");
+    btn.children("span").hide();
+  } else {
+    btn.prop("disabled", true);
+    btn.children("span").show();
   }
 }
 
@@ -116,6 +117,9 @@ function addUsersToTable(users){
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
     //var cell3 = row.insertCell(2);
+
+    cell1.setAttribute("class", "align-middle");
+    cell2.setAttribute("class", "align-middle");
     
     cell1.innerHTML = `<img class="pp" src="${users[i].profile_pic_base64}" alt="${users[i].username}"></img>`;
     cell2.innerHTML = `<p class="username"><a href="https://instagram.com/${users[i].username}">@${users[i].username}</p></a> <p class="full_name">${users[i].full_name}</p>`;

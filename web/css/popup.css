@@ -32,6 +32,10 @@ p.full_name{
   color: #808080;
 }
 
+table {
+  margin: 0px;
+}
+
 img#loading {
   width: 100%;
 }
@@ -55,6 +59,11 @@ img.pp {
 
 #content {
   min-width: 280px;
+}
+
+#header {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 #userlist {

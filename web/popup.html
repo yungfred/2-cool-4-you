@@ -1,14 +1,23 @@
 <!doctype html>
 <html>
 <head>
-	<title></title>
-	<script src="popup.js"></script>
+	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="css/popup.css">
+	<title></title>
 </head>
 <body>
-    <div id="content">
-		<h1 id="title">2 cool 4 you</h1>
-		<img id="loading" src="img/loading.gif" alt="Loading">
+    <div id="content"> 
+		<div id="header" class="text-center">
+			<h1 id="title">2 cool 4 you</h1>
+			<button id="reload-btn" class="btn btn-primary" type="button" disabled>
+				<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+				Reload
+			</button>
+		</div>
     </div>
+	<script src="js-libs/bootstrap.min.js"></script>
+	<script src="js-libs/jquery-3.6.0.slim.min.js"></script>
+	<script src="js-libs/popper.min.js"></script>
+	<script src="popup.js"></script>
 </body>
 </html>
