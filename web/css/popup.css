@@ -3,7 +3,6 @@
   src: url(../fonts/billabong.ttf);
 }
 
-
 h1 {
   font-family: Billabong;
   font-size: 35px;
@@ -14,12 +13,12 @@ h1 {
 p {
   width: 100%;
   text-align: left;
-  font-family: monospace;
   font-size: 16px;
   margin: 2px;
 }
 
 a {
+  font-family: monospace;
   color: black;
 }
 
@@ -30,6 +29,11 @@ p.error{
 
 p.full_name{
   color: #808080;
+  font-size: 12px;
+}
+
+p.donation-text {
+  line-height: 1.1em;
 }
 
 table {
@@ -67,7 +71,6 @@ img.pp {
 }
 
 #userlist {
-  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
   border-collapse: collapse;
   width: 100%;
 }
@@ -75,7 +78,6 @@ img.pp {
 #userlist th, #userlist td {
   padding: 10px;
   text-align: left;
-  font-size: 15px;
 }
 
 #userlist tr:nth-child(odd) {

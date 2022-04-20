@@ -23,8 +23,17 @@ chrome.runtime.onMessage.addListener(handleRes);
 
 // links in popup.html should be opened in new tab
 window.addEventListener('click', function(e) {
+  var url;
+  var active = false;
+  if(e.target.parentElement.href!==undefined){
+    url = e.target.parentElement.href;
+    active = true;
+  }
   if(e.target.href!==undefined){
-    chrome.tabs.create({url:e.target.href, active: false})
+    url = e.target.href;
+  }
+  if(url) {
+    chrome.tabs.create({url:url, active: active});
   }
 });
 
@@ -105,7 +114,7 @@ function addUsersToTable(users){
   var table = document.createElement("TABLE");
   table.setAttribute("id", "userlist");
   table.setAttribute("class", "table table-striped");
-  document.getElementById("content").appendChild(table);
+  document.getElementById("header").after(table);
 
   // needs to be reversed, because of the insertion order
   users.reverse();
