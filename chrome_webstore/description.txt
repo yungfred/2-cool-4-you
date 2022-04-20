@@ -1,9 +1,9 @@
 ★ How to use: Login to Instagram & push the button broken heart button 💔
-★ Can handle up to 10.000 users in the following/followers list
+★ Can handle up to ~10k followers
 ★ No credentials required
-★ No API key required
-★ Minimal permissions required
+★ Minimal extension permissions requested
 
-Credits:
-Heart Icon adapted from Pixel Perfect (https://www.flaticon.com/authors/pixel-perfect) is licensed by Creative Commons BY 3.0
-Refresh Icon made by Dave Gandy (https://www.flaticon.com/authors/dave-gandy) is licensed by Creative Commons BY 3.0
+Permission usage:
+- storage: Caching the list of users.
+- tabs: Opening new tabs.
+- host_permissions: Sending http requests to Instagram.
