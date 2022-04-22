@@ -7,5 +7,4 @@ Find Instagram users who do not follow you back.
 
 Permission usage:
 - storage: Caching the list of users.
-- tabs: Opening new tabs.
 - host_permissions: Sending http requests to Instagram.
