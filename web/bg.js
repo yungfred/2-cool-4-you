@@ -125,13 +125,6 @@ function removeUsers(){
   });
 }
 
-
-function sendUsers(users){
-  console.log("sending users");
-  sendList(users);
-}
-
-
 function sortUsers(filtered){
   sorted = filtered.sort(function(a,b){
     if(a.is_verified === false && b.is_verified === true){
@@ -145,7 +138,6 @@ function sortUsers(filtered){
   return sorted;
 }
 
-
 function filterUsers(following, followers){
   filtered = following.filter(function(elem){
     for(var i=0; i<followers.length; i++){
@@ -158,11 +150,8 @@ function filterUsers(following, followers){
   return filtered;
 }
 
-
 function refreshUsers(userid){
   return Promise.all([
-    //new Promise(function(resolve, reject) {instaQuery(userid, FOLLOWING_HASH, [], null, resolve, reject)}),
-    // new Promise(function(resolve, reject) {instaQuery(userid, FOLLOWERS_HASH, [], null, resolve, reject)}),
     instaQuery(userid, FOLLOWING_HASH, [], null),
     instaQuery(userid, FOLLOWERS_HASH, [], null),
     removeUsers()
@@ -205,7 +194,8 @@ function loadUsers(){
     }
 
   }).then(result => {
-    sendUsers(result);
+    console.log("sending users");
+    chrome.runtime.sendMessage({target: "ps", msg: "update_userlist", list: result});
   }).catch(function(err){
     console.warn("something went wrong: " + err);
     if(err.code === 429){
@@ -213,12 +203,6 @@ function loadUsers(){
     }
   });
 }
-
-
-function sendList(list){
-  chrome.runtime.sendMessage({target: "ps", msg: "update_userlist", list: list});
-}
-
 
 const toDataURL = url => fetch(url)
   .then(response => response.blob())
@@ -230,4 +214,4 @@ const toDataURL = url => fetch(url)
   }))
 
 
-// POST to https://www.instagram.com/web/friendships/6025840335/unfollow/
+// unfollow: POST to https://www.instagram.com/web/friendships/1234/unfollow/
