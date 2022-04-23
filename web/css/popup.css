@@ -62,7 +62,7 @@ img.pp {
 }
 
 #content {
-  min-width: 300px;
+  width: 300px;
 }
 
 #header {
