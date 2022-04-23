@@ -1,10 +1,15 @@
 Find Instagram users who do not follow you back.
 
-★ How to use: Login to Instagram & push the button broken heart button 💔
-★ Can handle up to ~10k followers
-★ No Instagram credentials required
-★ Minimal extension permissions requested
+★ How to use: Login to Instagram & push the button broken heart button 💔.
+★ Can handle up to ~10k followers.
+★ No Instagram credentials required.
+★ Minimal extension permissions requested.
 
 Permission usage:
 - storage: Caching the list of users.
 - host_permissions: Sending http requests to Instagram.
+
+Contributions or donations are highly welcome!
+★ Github: https://github.com/yungfred/2-cool-4-you
+★ Paypal: https://www.paypal.com/donate/?hosted_button_id=E3WQJVLHHQLKC
+
