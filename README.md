@@ -1,4 +1,4 @@
-# 2 cool 4 you
+# 2 cool 4 you <img src="logo/logo.svg" width="25px">
 A Google Chrome extension that finds Instagram users who do not follow you back.
 
 ## Installation
