@@ -1,10 +1,11 @@
 Find Instagram users who do not follow you back.
 
+Open Instagram in a new tab and push the broken heart button 💔 to see all users who do not follow you back.
+
 ★ Can handle up to ~10k followers.
 ★ Disclosure of Instagram credentials not required.
 ★ Minimal extension permissions needed.
-
-Usage: Open Instagram in a new tab and push the broken heart button 💔 to see all users that do not follow you back.
+★ Open Source.
 
 Permissions:
 - storage: Caching the list of users.
@@ -13,4 +14,3 @@ Permissions:
 Contributions or donations are highly welcome!
 ★ Github: https://github.com/yungfred/2-cool-4-you
 ★ Paypal: https://www.paypal.com/donate/?hosted_button_id=E3WQJVLHHQLKC
-
