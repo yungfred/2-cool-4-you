@@ -10,6 +10,11 @@ h1 {
   text-align: center;
 }
 
+h2 {
+  font-family: Billabong;
+  font-size: 28px;
+}
+
 p {
   width: 100%;
   text-align: left;
