@@ -2,7 +2,7 @@
 chrome.runtime.onMessage.addListener(handleMessage);
 // disable icon for all tabs per default
 chrome.runtime.onStartup.addListener(chrome.action.disable);
-chrome.runtime.onInstalled.addListener(chrome.action.disable);
+chrome.runtime.onInstalled.addListener((ignore) => chrome.action.disable());
 
 console.log("backgroundscript loaded");
 
