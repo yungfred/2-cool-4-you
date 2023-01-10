@@ -1,56 +1,25 @@
 // popup script
 
-/* Google Analytics: does not work with manifest v3
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-144181571-1']);
-_gaq.push(['_trackPageview']);
+jQuery.ready(chrome.runtime.sendMessage({"target": "bs", "msg": "get_userlist"}));
+chrome.runtime.onMessage.addListener(handleMessage);
 
-(function() {
-  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  ga.src = 'https://ssl.google-analytics.com/ga.js';
-  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-})();
-
-function trackButtonClick(e) {
-  console.log("refresh action registered");
-  // _gaq.push(['_trackEvent', e.target.id, 'clicked']);
-}
-*/
-
-$("#reload-btn").on("click", refreshUsers);
-document.addEventListener('DOMContentLoaded', sendUserlistReq);
-chrome.runtime.onMessage.addListener(handleRes);
-
-// links in popup.html should be opened in new tab
-window.addEventListener('click', function(e) {
-  var url;
-  var active = false;
-  if(e.target.parentElement.href!==undefined){
-    url = e.target.parentElement.href;
-    active = true;
-  }
-  if(e.target.href!==undefined){
-    url = e.target.href;
-  }
-  if(url) {
-    chrome.tabs.create({url:url, active: active});
-  }
+$("#reload-btn").click(refreshUsers);
+$('button#buy').click((event) => chrome.runtime.sendMessage({"target": "bs", "msg": "extpay_buy"}));
+$('a#login').click((event) => {
+  event.preventDefault();
+  chrome.runtime.sendMessage({"target": "bs", "msg": "extpay_login"});
 });
 
-function sendUserlistReq(){
-  console.log("sending request to background script");
-  chrome.runtime.sendMessage({"target": "bs", "msg": "get_userlist"});
-}
-
-function handleRes(request, sender, sendResponse) {
-  toggleLoading();
+function handleMessage(request, sender, sendResponse) {
   if(request.target === "ps" && request.msg === "update_userlist"){
+    toggleLoading();
     // add user list
     users = request.list;
     addUsersToTable(users);
   }
 
   if(request.target === "ps" && request.msg === "err" && request.code === 429){
+    toggleLoading();
     var p = document.createElement("p");
     p.setAttribute("class", "error");
     var node = document.createTextNode("Too many requests, please retry later");
@@ -62,15 +31,13 @@ function handleRes(request, sender, sendResponse) {
 
 function refreshUsers(){
   toggleLoading();
-  var userlist = $("#userlist");
+  var userlist = $("table#userlist");
   if(userlist !== null){
     userlist.remove();
   }
 
   chrome.runtime.sendMessage({"target": "bs", "msg": "remove_userlist"})
-    .then(() => {
-      sendUserlistReq();
-    }, (response) => {console.log(response)});
+    .then(() => chrome.runtime.sendMessage({"target": "bs", "msg": "get_userlist"}));
 }
 
 function toggleLoading() {
@@ -104,24 +71,26 @@ function addIcon(id, filetype, onClickAction){
   }
   // append image to content div
   document.getElementById("content").appendChild(img);
-
-  // add google analytics listener
-  // img.addEventListener('click', trackButtonClick);
 }
 
 
-function addUsersToTable(users){
+async function addUsersToTable(users){
   var table = document.createElement("TABLE");
   table.setAttribute("id", "userlist");
   table.setAttribute("class", "table table-striped");
-  document.getElementById("header").after(table);
+  $("div#userlist").append(table);
 
-  // needs to be reversed, because of the insertion order
-  users.reverse();
+  const paid = await chrome.runtime.sendMessage({target: "bs", msg: "payment_status"});
+  const numDisplay = paid ? users.length : Math.min(users.length, 10);
+  
+  if (paid) {
+    $('div#overlay').remove();
+    $('div#buy').css('display', 'none');
+  }
 
   console.log(users);
-  for(i=0; i<users.length; i++){
-    var row = table.insertRow(0);
+  for(i = 0; i < numDisplay; i++){
+    var row = table.insertRow(-1);
 
     var cell1 = row.insertCell(0);
     var cell2 = row.insertCell(1);
@@ -131,7 +100,10 @@ function addUsersToTable(users){
     cell2.setAttribute("class", "align-middle");
     
     cell1.innerHTML = `<img class="pp" src="${users[i].profile_pic_base64}" alt="${users[i].username}"></img>`;
-    cell2.innerHTML = `<p class="username"><a href="https://instagram.com/${users[i].username}">@${users[i].username}</p></a> <p class="full_name">${users[i].full_name}</p>`;
+    cell2.innerHTML = `<p class="username"><a class="username" href="https://instagram.com/${users[i].username}">@${users[i].username}</p></a> <p class="full_name">${users[i].full_name}</p>`;
     //cell3.innerHTML = `<p> verified: ${users[i].is_verified} </p>`
   }
+  
+  // open username links in new background tab
+  $('a.username').click((event) => chrome.tabs.create({url:event.target.href, active: false}));
 }

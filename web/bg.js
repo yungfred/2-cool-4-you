@@ -2,23 +2,34 @@
 chrome.runtime.onMessage.addListener(handleMessage);
 // disable icon for all tabs per default
 chrome.runtime.onStartup.addListener(chrome.action.disable);
-chrome.runtime.onInstalled.addListener((ignore) => chrome.action.disable());
-
-console.log("backgroundscript loaded");
+chrome.runtime.onInstalled.addListener(() => chrome.action.disable());
 
 const FOLLOWING_HASH = '58712303d941c6855d4e888c5f0cd22f';
 const FOLLOWERS_HASH = '37479f2b8209594dde7facb0d904896a';
 
+importScripts('js-libs/ExtPay.js');
+var extpay = ExtPay('2-cool-4-you');
+extpay.startBackground();
+
+async function getPaymentStatus(sendResponse) {
+  const user = await extpay.getUser();
+  if (user.paid) {
+    console.log("User paid.");
+  } else {
+    console.log("User did not pay.");
+  }
+  return user.paid;
+}
+
 function handleMessage(message, sender, sendResponse) {
-  console.log("Got request:");
-  console.log(message);
+  console.log("Got request: " + message);
 
   if(message.target !== "bs") {
     return;
   }
 
   if (message.msg === "activate_icon") {
-    chrome.action.enable(sender.tab.id, () => sendResponse()); // enable icon for tab with cs
+    chrome.action.enable(sender.tab.id,sendResponse); // enable icon for tab with cs
   }
   if (message.msg === "set_userid") {
     chrome.storage.local.set({"userid": message.userID}, function() { 
@@ -27,10 +38,19 @@ function handleMessage(message, sender, sendResponse) {
     });
   }
   if (message.msg === "get_userlist") {
-    loadUsers().then(() => sendResponse());
+    loadUsers().then(sendResponse);
   }
   if (message.msg === "remove_userlist") {
-    removeUsers().then(() => sendResponse());
+    removeUsers().then(sendResponse);
+  }
+  if (message.msg === "payment_status") {
+    getPaymentStatus().then(sendResponse);
+  }
+  if (message.msg === "extpay_login") {
+    extpay.openLoginPage();
+  }
+  if (message.msg === "extpay_buy") {
+    extpay.openPaymentPage();
   }
   return true;
 }

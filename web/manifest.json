@@ -19,6 +19,11 @@
     {
       "matches": ["http://www.instagram.com/*", "https://www.instagram.com/*"],
       "js": ["cs.js"]
+    },
+    {
+      "matches": ["https://extensionpay.com/*"],
+      "js": ["js-libs/ExtPay.js"],
+      "run_at": "document_start"
     }
   ],
 
