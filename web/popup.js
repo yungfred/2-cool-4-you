@@ -18,13 +18,14 @@ function handleMessage(request, sender, sendResponse) {
     addUsersToTable(users);
   }
 
-  if(request.target === "ps" && request.msg === "err" && request.code === 429){
+  if(request.target === "ps" && request.error){
     toggleLoading();
     var p = document.createElement("p");
     p.setAttribute("class", "error");
-    var node = document.createTextNode("Too many requests, please retry later");
+    var node = document.createTextNode(request.error.msg);
     p.appendChild(node);
     document.getElementById("content").appendChild(p);
+    removePaymentNotice();
   }
   sendResponse();
 }
@@ -73,6 +74,10 @@ function addIcon(id, filetype, onClickAction){
   document.getElementById("content").appendChild(img);
 }
 
+function removePaymentNotice() {
+  $('div#overlay').remove();
+  $('div#buy').css('display', 'none');
+}
 
 async function addUsersToTable(users){
   var table = document.createElement("TABLE");
@@ -84,8 +89,7 @@ async function addUsersToTable(users){
   const numDisplay = paid ? users.length : Math.min(users.length, 10);
   
   if (paid) {
-    $('div#overlay').remove();
-    $('div#buy').css('display', 'none');
+    removePaymentNotice();
   }
 
   console.log(users);

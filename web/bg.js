@@ -6,6 +6,7 @@ chrome.runtime.onInstalled.addListener(() => chrome.action.disable());
 
 const FOLLOWING_HASH = '58712303d941c6855d4e888c5f0cd22f';
 const FOLLOWERS_HASH = '37479f2b8209594dde7facb0d904896a';
+const MAX_USERS = 5000;
 
 importScripts('js-libs/ExtPay.js');
 var extpay = ExtPay('2-cool-4-you');
@@ -78,7 +79,14 @@ function instaQuery(userid, query_hash, users, after){
       console.log(response);
 
       if(response.status === "fail"){
-          return Promise.reject({code: 429, msg: "too many requests"});
+        return Promise.reject({msg: "Too many request, please try again later."});
+      }
+
+      if(response.data.user.edge_follow?.count >= MAX_USERS){
+        return Promise.reject({msg: "You are following too many accounts."});
+      }
+      if(response.data.user.edge_followed_by?.count >= MAX_USERS){
+        return Promise.reject({msg: "You have too many followers."});
       }
       
       var ptr;
@@ -218,10 +226,11 @@ function loadUsers(){
   }).then(result => {
     console.log("sending users");
     chrome.runtime.sendMessage({target: "ps", msg: "update_userlist", list: result});
-  }).catch(function(err){
-    console.warn("something went wrong: " + err);
-    if(err.code === 429){
-      chrome.runtime.sendMessage({target: "ps", msg: "err", code: 429});
+  }).catch(function(error){
+    console.info("something went wrong: ");
+    console.info(error);
+    if(error.msg){
+      chrome.runtime.sendMessage({target: "ps", error: error});
     }
   });
 }
