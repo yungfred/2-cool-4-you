@@ -3,7 +3,7 @@
 
   "name": "2 cool 4 you",
   "description": "Find Instagram users who do not follow you back.",
-  "version": "1.1.1",
+  "version": "1.1.2",
 
   "background": {
     "service_worker": "bg.js"
